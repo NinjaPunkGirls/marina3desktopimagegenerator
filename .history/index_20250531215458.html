@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Image Generator</title>
+    <link rel="stylesheet" href="./style.css">
+</head>
+<body>
+    <h1>Generate Image</h1>
+
+    <button id="mode-switch-btn">Switch to Poster Mode</button>
+
+    <div id="general-mode-inputs">
+        <button id="select-folder-btn">Select Image Folder</button>
+        <div id="image-grid"></div> <!-- Container to display images -->
+
+        <textarea id="prompt" placeholder="Enter your image prompt here..."></textarea>
+    </div>
+
+    <div id="poster-mode-inputs" style="display: none;"> <!-- Initially hidden -->
+        <h3>Poster Details</h3>
+        <input type="text" id="poster-headline" placeholder="Enter poster headline...">
+        <textarea id="poster-body-text" placeholder="Enter body text (optional)..."></textarea>
+        <input type="text" id="poster-style" placeholder="Enter poster style (e.g., vintage, art deco)...">
+        <!-- Could add more specific options later, like color schemes, fonts etc. -->
+    </div>
+
+    <button id="generate-btn">Generate</button>
+    <div id="image-container">
+        <!-- Generated image will appear here -->
+    </div>
+
+    <script src="./renderer.js"></script>
+</body>
+</html> 

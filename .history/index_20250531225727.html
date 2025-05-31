@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Image Generator</title>
+    <link rel="stylesheet" href="./style.css">
+</head>
+<body>
+    <h1>Generate Image</h1>
+
+    <div id="main-content-container">
+        <div id="controls-area">
+            <button id="mode-switch-btn">Switch to Poster Mode</button>
+
+            <div id="general-mode-inputs">
+                <h3>General Image Generation</h3>
+                <div class="mode-selection">
+                    <input type="radio" id="text-to-image-radio" name="general-sub-mode" value="text-to-image" checked>
+                    <label for="text-to-image-radio">Text to Image</label>
+                    <input type="radio" id="image-to-image-radio" name="general-sub-mode" value="image-to-image">
+                    <label for="image-to-image-radio">Image to Image</label>
+                    <input type="radio" id="text-image-ref-radio" name="general-sub-mode" value="text-image-reference">
+                    <label for="text-image-ref-radio">Text and Image Reference</label>
+                </div>
+
+                <div id="image-selection-buttons"> <!-- Container for image selection buttons -->
+                    <button id="select-single-image-btn">Select Single Image</button>
+                    <input type="file" id="single-image-input" accept="image/*" style="display: none;"> <!-- Hidden file input -->
+                    <button id="select-folder-btn">Select Image Folder</button>
+                    <button id="set-default-folder-btn">Set as Default Folder</button>
+                </div>
+
+                <div id="image-grid"></div> <!-- Container to display images -->
+
+                <div id="prompt-input-container">
+                     <textarea id="prompt" placeholder="Enter your image prompt here..."></textarea>
+                </div>
+
+                <h4><input type="checkbox" id="advanced-options-toggle"> Show Advanced Options</h4>
+
+                <div id="advanced-options" style="display: none;">
+                    <div>
+                        <label for="cfg-scale">CFG Scale:</label>
+                        <input type="number" id="cfg-scale" value="7" min="0" max="35" step="0.1">
+                    </div>
+                    <div>
+                        <label for="steps">Steps:</label>
+                        <input type="number" id="steps" value="30" min="10" max="50">
+                    </div>
+                    <div>
+                        <label for="samples">Samples:</label>
+                        <input type="number" id="samples" value="1" min="1" max="10">
+                    </div>
+                    <div>
+                        <label for="seed">Seed:</label>
+                        <input type="number" id="seed" value="0" min="0">
+                    </div>
+                     <div id="image-strength-control">
+                         <label for="image-strength">Image Strength:</label>
+                         <input type="number" id="image-strength" value="0.5" min="0" max="1" step="0.01">
+                     </div>
+                    <!-- Add more advanced options here later if needed -->
+                </div>
+
+            </div>
+
+            <div id="poster-mode-inputs" style="display: none;"> <!-- Initially hidden -->
+                <h3>Poster Details</h3>
+                <input type="text" id="poster-headline" placeholder="Enter poster headline...">
+                <textarea id="poster-body-text" placeholder="Enter body text (optional)..."></textarea>
+                <input type="text" id="poster-style" placeholder="Enter poster style (e.g., vintage, art deco)...">
+                <!-- Could add more specific options later, like color schemes, fonts etc. -->
+            </div>
+
+            <button id="generate-btn">Generate</button>
+        </div>
+
+        <div id="image-container">
+            <!-- Generated image will appear here -->
+        </div>
+    </div>
+
+    <script src="./renderer.js"></script>
+</body>
+</html> 

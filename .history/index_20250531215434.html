@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Image Generator</title>
+    <link rel="stylesheet" href="./style.css">
+</head>
+<body>
+    <h1>Generate Image</h1>
+
+    <button id="mode-switch-btn">Switch to Poster Mode</button>
+
+    <!-- Remove the single image input -->
+    <!-- <input type="file" id="init-image" accept="image/*"> -->
+
+    <button id="select-folder-btn">Select Image Folder</button>
+    <div id="image-grid"></div> <!-- Container to display images -->
+
+    <textarea id="prompt" placeholder="Enter your image prompt here..."></textarea>
+    <button id="generate-btn">Generate</button>
+    <div id="image-container">
+        <!-- Generated image will appear here -->
+    </div>
+
+    <script src="./renderer.js"></script>
+</body>
+</html> 

@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Image Generator</title>
+    <link rel="stylesheet" href="./style.css">
+</head>
+<body>
+    <h1>Generate Image</h1>
+
+    <button id="mode-switch-btn">Switch to Poster Mode</button>
+
+    <div id="general-mode-inputs">
+        <h3>General Image Generation</h3>
+        <div class="mode-selection">
+            <input type="radio" id="text-to-image-radio" name="general-sub-mode" value="text-to-image" checked>
+            <label for="text-to-image-radio">Text to Image</label>
+            <input type="radio" id="image-to-image-radio" name="general-sub-mode" value="image-to-image">
+            <label for="image-to-image-radio">Image to Image</label>
+            <input type="radio" id="text-image-ref-radio" name="general-sub-mode" value="text-image-reference">
+            <label for="text-image-ref-radio">Text and Image Reference</label>
+        </div>
+
+        <button id="select-folder-btn">Select Image Folder</button>
+        <div id="image-grid"></div> <!-- Container to display images -->
+
+        <div id="prompt-input-container">
+             <textarea id="prompt" placeholder="Enter your image prompt here..."></textarea>
+        </div>
+    </div>
+
+    <div id="poster-mode-inputs" style="display: none;"> <!-- Initially hidden -->
+        <h3>Poster Details</h3>
+        <input type="text" id="poster-headline" placeholder="Enter poster headline...">
+        <textarea id="poster-body-text" placeholder="Enter body text (optional)..."></textarea>
+        <input type="text" id="poster-style" placeholder="Enter poster style (e.g., vintage, art deco)...">
+        <!-- Could add more specific options later, like color schemes, fonts etc. -->
+    </div>
+
+    <button id="generate-btn">Generate</button>
+    <div id="image-container">
+        <!-- Generated image will appear here -->
+    </div>
+
+    <script src="./renderer.js"></script>
+</body>
+</html> 
