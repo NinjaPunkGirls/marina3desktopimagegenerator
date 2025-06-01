@@ -7,7 +7,8 @@ const path = require('path'); // Import path module
 document.addEventListener("DOMContentLoaded", () => {
     const promptInput = document.getElementById("prompt");
     const generateBtn = document.getElementById("generate-btn");
-    const imageContainer = document.getElementById("image-container");
+    const generatedPreview = document.getElementById("generated-preview"); // Updated reference
+    const referencePreview = document.getElementById("reference-preview"); // New reference
 
     const generalModeInputs = document.getElementById('general-mode-inputs');
     const posterModeInputs = document.getElementById('poster-mode-inputs');
@@ -34,10 +35,156 @@ document.addEventListener("DOMContentLoaded", () => {
     const imageStrengthControl = document.getElementById('image-strength-control');
     const imageStrengthInput = document.getElementById('image-strength');
 
+    // Poster mode elements
+    const posterStyleInput = document.getElementById('poster-style');
+
+    // Reference image controls (for poster mode)
+    const referenceImageControls = document.getElementById('reference-image-controls');
+    const refSelectSingleImageBtn = document.getElementById('ref-select-single-image-btn');
+    const refSingleImageInput = document.getElementById('ref-single-image-input');
+    const refSelectFolderBtn = document.getElementById('ref-select-folder-btn');
+    const refSetDefaultFolderBtn = document.getElementById('ref-set-default-folder-btn');
+    const referenceImageGrid = document.getElementById('reference-image-grid');
+
     let currentMode = 'general'; // 'general' or 'poster'
     let currentGeneralSubMode = 'image-to-image'; // 'text-to-image', 'image-to-image', or 'text-image-reference'
 
     let selectedInitImage = null; // Variable to store the currently selected image element (from single select or grid)
+    let selectedReferenceImage = null; // Variable to store the currently selected reference image (for poster mode)
+
+    // Function to show reference image preview
+    function showReferencePreview(imageSrc) {
+        referencePreview.innerHTML = ''; // Clear previous preview
+        if (imageSrc) {
+            const imgElement = document.createElement('img');
+            imgElement.src = imageSrc;
+            imgElement.alt = 'Reference image preview';
+            referencePreview.appendChild(imgElement);
+        }
+    }
+
+    // Function to clear reference image preview
+    function clearReferencePreview() {
+        referencePreview.innerHTML = '';
+    }
+
+    // Function to handle poster type selection
+    function handlePosterTypeChange() {
+        const posterTypeRadios = document.querySelectorAll('input[name="poster-type"]');
+        posterTypeRadios.forEach(radio => {
+            radio.addEventListener('change', () => {
+                if (radio.value === 'custom') {
+                    posterStyleInput.classList.add('enabled');
+                    posterStyleInput.placeholder = 'Describe your custom poster style...';
+                } else {
+                    posterStyleInput.classList.remove('enabled');
+                    posterStyleInput.placeholder = 'Custom style description (only for Custom Style option)...';
+                    posterStyleInput.value = '';
+                }
+            });
+        });
+    }
+
+    // Function to get selected poster type
+    function getSelectedPosterType() {
+        const selectedType = document.querySelector('input[name="poster-type"]:checked');
+        return selectedType ? selectedType.value : 'event';
+    }
+
+    // Function to generate poster prompt based on selections
+    function generatePosterPrompt() {
+        const posterType = getSelectedPosterType();
+        const headline = document.getElementById('poster-headline').value;
+        const bodyText = document.getElementById('poster-body-text').value;
+        const customStyle = document.getElementById('poster-style').value;
+        const colorScheme = document.getElementById('poster-color-scheme').value;
+        const era = document.getElementById('poster-era').value;
+        const basePrompt = promptInput.value;
+
+        let styleDescription = '';
+        
+        // Define style based on poster type
+        switch(posterType) {
+            case 'event':
+                styleDescription = 'vibrant event poster, concert style, festival aesthetic, bold typography, energetic design';
+                break;
+            case 'movie':
+                styleDescription = 'cinematic movie poster, dramatic lighting, professional film poster design, compelling composition';
+                break;
+            case 'vintage':
+                styleDescription = 'vintage poster design, retro aesthetic, aged paper texture, classic typography, nostalgic feel';
+                break;
+            case 'propaganda':
+                styleDescription = 'propaganda poster style, bold political design, strong messaging, powerful imagery, motivational';
+                break;
+            case 'art-deco':
+                styleDescription = 'Art Deco poster, geometric patterns, elegant lines, 1920s style, sophisticated design, gold accents';
+                break;
+            case 'minimalist':
+                styleDescription = 'minimalist poster design, clean lines, simple composition, modern typography, white space';
+                break;
+            case 'travel':
+                styleDescription = 'travel poster, tourism promotion, destination marketing, scenic beauty, wanderlust inspiring';
+                break;
+            case 'horror':
+                styleDescription = 'horror movie poster, dark atmosphere, scary imagery, thriller aesthetic, dramatic shadows';
+                break;
+            case 'sci-fi':
+                styleDescription = 'science fiction poster, futuristic design, space theme, technological elements, neon colors';
+                break;
+            case 'custom':
+                styleDescription = customStyle || 'custom poster design';
+                break;
+        }
+
+        // Add color scheme
+        if (colorScheme !== 'auto') {
+            const colorDescriptions = {
+                'vintage-sepia': 'vintage sepia tones, warm browns, aged color palette',
+                'black-white': 'black and white, monochrome, high contrast',
+                'neon-bright': 'neon colors, bright fluorescent tones, vibrant palette',
+                'dark-moody': 'dark moody colors, deep shadows, dramatic lighting',
+                'warm-earth': 'warm earth tones, browns, oranges, natural colors',
+                'cool-blue': 'cool blue palette, cyan tones, icy colors',
+                'red-dominant': 'red dominant color scheme, bold reds, dramatic contrast'
+            };
+            styleDescription += ', ' + colorDescriptions[colorScheme];
+        }
+
+        // Add era
+        if (era !== 'modern') {
+            const eraDescriptions = {
+                'retro': '1980s-90s retro style, nostalgic design',
+                'vintage': '1950s-70s vintage aesthetic, classic mid-century design',
+                'classic': '1920s-40s classic style, golden age design',
+                'victorian': 'Victorian era style, ornate design, classical elements',
+                'futuristic': 'futuristic design, advanced technology aesthetic'
+            };
+            styleDescription += ', ' + eraDescriptions[era];
+        }
+
+        // Construct final prompt
+        let finalPrompt = `${styleDescription} poster`;
+        
+        if (headline) {
+            finalPrompt += `, headline: "${headline}"`;
+        }
+        
+        if (bodyText) {
+            finalPrompt += `, text: "${bodyText}"`;
+        }
+        
+        if (basePrompt) {
+            finalPrompt += `, ${basePrompt}`;
+        }
+
+        finalPrompt += ', high quality, professional design, poster layout';
+
+        return finalPrompt;
+    }
+
+    // Initialize poster type handling
+    handlePosterTypeChange();
 
     // WARNING: Storing API key directly in renderer is not secure.
     // This should be handled in the main process or a secure backend.
@@ -53,6 +200,7 @@ document.addEventListener("DOMContentLoaded", () => {
         if (currentMode === 'general') {
             generalModeInputs.style.display = 'block';
             posterModeInputs.style.display = 'none';
+            referenceImageControls.style.display = 'none'; // Hide reference controls in general mode
 
             if (currentGeneralSubMode === 'text-to-image') {
                 selectSingleImageBtn.style.display = 'none'; // Hide single image select button
@@ -76,13 +224,14 @@ document.addEventListener("DOMContentLoaded", () => {
         } else { // poster
             generalModeInputs.style.display = 'none';
             posterModeInputs.style.display = 'block';
-            // Decide visibility for image selection options and prompt in poster mode if needed
-            // For now, let's assume single image select, folder select, image grid, and prompt are all visible
-             selectSingleImageBtn.style.display = 'block';
-             selectFolderBtn.style.display = 'block';
-             imageGrid.style.display = 'flex';
-             promptInputContainer.style.display = 'block'; // Show prompt in poster mode
-             setDefaultFolderBtn.style.display = 'block'; // Show set default button in poster mode
+            referenceImageControls.style.display = 'block'; // Show reference controls in poster mode
+            
+            // Hide main image selection controls in poster mode since we use reference image controls
+            selectSingleImageBtn.style.display = 'none';
+            selectFolderBtn.style.display = 'none';
+            imageGrid.style.display = 'none';
+            setDefaultFolderBtn.style.display = 'none';
+            promptInputContainer.style.display = 'block'; // Show prompt in poster mode
         }
     }
 
@@ -95,15 +244,21 @@ document.addEventListener("DOMContentLoaded", () => {
             currentMode = 'poster';
             modeSwitchBtn.textContent = 'Switch to General Mode';
             console.log('Switched to Poster Mode');
+            clearReferencePreview(); // Clear reference preview when switching modes
         } else {
             currentMode = 'general';
             modeSwitchBtn.textContent = 'Switch to Poster Mode';
             console.log('Switched to General Mode');
              // Reset general sub-mode to default when switching back
              currentGeneralSubMode = 'image-to-image';
-             textToImageRadio.checked = true;
+             imageToImageRadio.checked = true;
              selectedInitImage = null; // Deselect image when switching modes
              imageGrid.innerHTML = ''; // Clear image grid
+             clearReferencePreview(); // Clear reference preview when switching modes
+             
+             // Clear reference image selection when leaving poster mode
+             selectedReferenceImage = null;
+             referenceImageGrid.innerHTML = '';
         }
         updateUIVisibility();
     });
@@ -114,6 +269,7 @@ document.addEventListener("DOMContentLoaded", () => {
             currentGeneralSubMode = 'text-to-image';
             selectedInitImage = null; // Deselect any image when switching away from image modes
             imageGrid.innerHTML = ''; // Clear image grid
+            clearReferencePreview(); // Clear reference preview when switching to text-only mode
             updateUIVisibility();
         }
     });
@@ -124,6 +280,7 @@ document.addEventListener("DOMContentLoaded", () => {
             promptInput.value = ''; // Clear prompt when switching to image-only mode
              selectedInitImage = null; // Deselect any image when switching sub-modes
              imageGrid.innerHTML = ''; // Clear image grid
+             clearReferencePreview(); // Clear reference preview when switching sub-modes
             updateUIVisibility();
         }
     });
@@ -133,6 +290,7 @@ document.addEventListener("DOMContentLoaded", () => {
             currentGeneralSubMode = 'text-image-reference';
              selectedInitImage = null; // Deselect any image when switching sub-modes
              imageGrid.innerHTML = ''; // Clear image grid
+             clearReferencePreview(); // Clear reference preview when switching sub-modes
             updateUIVisibility();
         }
     });
@@ -164,10 +322,16 @@ document.addEventListener("DOMContentLoaded", () => {
                     // Remove the image element from the DOM when deselected
                     imgElement.remove();
                     console.log('Deselected image:', file.name);
+                    
+                    // Clear reference preview when deselecting
+                    clearReferencePreview();
                 });
 
                 imageGrid.appendChild(imgElement);
                 selectedInitImage = imgElement; // Set the newly selected single image element
+                
+                // Show preview of selected reference image
+                showReferencePreview(e.target.result);
 
                 console.log('Selected single image:', file.name);
             };
@@ -200,6 +364,7 @@ document.addEventListener("DOMContentLoaded", () => {
             // Clear any previously selected single image or images from previous folder selection
             imageGrid.innerHTML = '';
             selectedInitImage = null;
+            clearReferencePreview(); // Clear reference preview when loading new folder
             displayImagesFromDirectory(directoryPath);
         } else {
             console.log('Directory selection canceled.');
@@ -236,6 +401,7 @@ document.addEventListener("DOMContentLoaded", () => {
         // Clear previous images (including any single selected image)
         imageGrid.innerHTML = '';
         selectedInitImage = null; // Reset selected image
+        clearReferencePreview(); // Clear reference preview when loading new directory
 
         fs.readdir(directoryPath, (err, files) => {
             if (err) {
@@ -276,6 +442,9 @@ document.addEventListener("DOMContentLoaded", () => {
                     imgElement.classList.add('selected');
                     selectedInitImage = imgElement;
                     console.log('Selected image:', imgPath);
+                    
+                    // Show preview of selected reference image
+                    showReferencePreview(imgElement.src);
                 });
 
                 imageGrid.appendChild(imgElement);
@@ -287,8 +456,8 @@ document.addEventListener("DOMContentLoaded", () => {
         const prompt = promptInput.value;
         // Get the file path/data URL from the selected image element, if any, only if in a mode requiring an initial image
         const initImageSrc = (currentMode === 'general' && (currentGeneralSubMode === 'image-to-image' || currentGeneralSubMode === 'text-image-reference') && selectedInitImage) ||
-                             (currentMode === 'poster' && selectedInitImage)
-                             ? selectedInitImage.src : null;
+                             (currentMode === 'poster' && selectedReferenceImage)
+                             ? (currentMode === 'poster' ? selectedReferenceImage.src : selectedInitImage.src) : null;
 
         // Basic validation based on the selected mode and sub-mode
         if (currentMode === 'general') {
@@ -302,15 +471,13 @@ document.addEventListener("DOMContentLoaded", () => {
                  alert("Please enter a prompt for Text and Image Reference generation.");
                  return;
             }
-
-        } else if (currentMode === 'poster'){
+        } else if (currentMode === 'poster') {
              const posterHeadline = document.getElementById('poster-headline').value;
-             // Add more specific validation for poster mode inputs if needed
-             if (!prompt || !posterHeadline) {
-                 alert("Please enter a prompt and a headline for Poster generation.");
+             // Only require headline for poster mode, prompt is auto-generated
+             if (!posterHeadline) {
+                 alert("Please enter a headline for Poster generation.");
                  return;
              }
-             // TODO: Consider if an initial image should be required for poster mode
         }
 
         // Need to convert image source (file path or data URL) to a File object for FormData, only if in a mode requiring an initial image
@@ -330,10 +497,10 @@ document.addEventListener("DOMContentLoaded", () => {
                     const byteArray = new Uint8Array(byteNumbers);
                     const mimeString = initImageSrc.split(',')[0].split(':')[1].split(';')[0];
                     blob = new Blob([byteArray], { type: mimeString });
-                    // Try to get filename from the selected image element's alt text if available
-                    fileName = selectedInitImage.alt && selectedInitImage.alt !== '' ? selectedInitImage.alt : 'uploaded_image.png'; // Use a default if no alt text
+                    fileName = (currentMode === 'poster' && selectedReferenceImage) 
+                        ? (selectedReferenceImage.alt && selectedReferenceImage.alt !== '' ? selectedReferenceImage.alt : 'reference_image.png')
+                        : (selectedInitImage.alt && selectedInitImage.alt !== '' ? selectedInitImage.alt : 'uploaded_image.png');
                 } else {
-                    // Existing logic for file paths from folder selection
                     const response = await fetch(initImageSrc);
                     blob = await response.blob();
                     fileName = path.basename(initImageSrc);
@@ -343,13 +510,13 @@ document.addEventListener("DOMContentLoaded", () => {
 
              } catch (error) {
                 console.error("Error fetching or processing image file:", error);
-                imageContainer.innerHTML = '<p>Error loading or processing initial image.</p>';
+                generatedPreview.innerHTML = '<p>Error loading or processing initial image.</p>';
                 return;
              }
         }
 
         console.log("Generating image...");
-        imageContainer.innerHTML = "<p>Generating...</p>";
+        generatedPreview.innerHTML = "<p>Generating...</p>";
 
         let apiEndpoint;
         let requestBody;
@@ -364,21 +531,12 @@ document.addEventListener("DOMContentLoaded", () => {
             apiEndpoint = `${API_BASE_URL}/${ENGINE_ID}/image-to-image`;
 
             const formData = new FormData();
-            formData.append('init_image', initImageFileObject); // Append the File object
-
-            // Include text prompts: use user prompt if available, otherwise a default for image modes
-            const textPromptToSend = (prompt && prompt.trim() !== '') ? prompt.trim() : 'generate image based on input'; // Use user prompt or a default
+            formData.append('init_image', initImageFileObject);
+            const textPromptToSend = (prompt && prompt.trim() !== '') ? prompt.trim() : 'generate image based on input';
             formData.append('text_prompts[0][text]', textPromptToSend);
-            // Optionally add weight if needed, e.g., formData.append('text_prompts[0][weight]', '1');
-
-            // Add other parameters as needed, e.g., steps, cfg_scale, etc.
-            // Use image_strength for image-to-image influence
-            formData.append('image_strength', '0.5'); // Corrected parameter name
-            // formData.append('cfg_scale', '7'); // Example of adding cfg_scale
+            formData.append('image_strength', '0.5');
 
             requestBody = formData;
-            // Content-Type is automatically set to multipart/form-data for FormData
-            // headers['Content-Type'] = 'multipart/form-data'; // Do NOT manually set this with FormData
         } else if (currentMode === 'general' && currentGeneralSubMode === 'text-to-image') {
             // Text-to-image generation
             apiEndpoint = `${API_BASE_URL}/${ENGINE_ID}/text-to-image`;
@@ -392,91 +550,46 @@ document.addEventListener("DOMContentLoaded", () => {
                 steps: 30,
             });
         } else if (currentMode === 'poster') {
-             // Poster generation mode (currently uses text-to-image endpoint, needs refinement)
-             // TODO: Construct prompt and request body for poster generation using poster-specific inputs
-             // For now, just using the main prompt and potentially an initial image
-             apiEndpoint = `${API_BASE_URL}/${ENGINE_ID}/text-to-image`; // Or potentially image-to-image if using an initial image
-             headers['Content-Type'] = 'application/json'; // Default for text-to-image
-
-             const posterHeadline = document.getElementById('poster-headline').value;
-             const posterBodyText = document.getElementById('poster-body-text').value;
-             const posterStyle = document.getElementById('poster-style').value;
-
-             // Example of constructing a prompt for poster mode (needs refinement)
-             const posterPrompt = `Aged poster style. Headline: ${posterHeadline}. Body text: ${posterBodyText}. Style: ${posterStyle}. ${prompt}`.trim();
-
-             if (selectedInitImage) {
-                  // If an initial image is selected in poster mode, use image-to-image endpoint
-                 apiEndpoint = `${API_BASE_URL}/${ENGINE_ID}/image-to-image`;
-                 const formData = new FormData();
-                 // Need to get the File object for the selected image in poster mode
-                 // Re-using the logic from general image modes to get the File object
-                 let posterInitImageFileObject = null;
-                 try {
-                    let blob;
-                    let fileName;
-                    const initImageFileSrc = selectedInitImage.src;
-                    if (initImageFileSrc.startsWith('data:')) {
-                        const byteCharacters = atob(initImageFileSrc.split(',')[1]);
-                        const byteNumbers = new Array(byteCharacters.length);
-                        for (let i = 0; i < byteCharacters.length; i++) {
-                            byteNumbers[i] = byteCharacters.charCodeAt(i);
-                        }
-                        const byteArray = new Uint8Array(byteNumbers);
-                        const mimeString = initImageFileSrc.split(',')[0].split(':')[1].split(';')[0];
-                        blob = new Blob([byteArray], { type: mimeString });
-                        fileName = selectedInitImage.alt && selectedInitImage.alt !== '' ? selectedInitImage.alt : 'uploaded_image.png';
-                    } else {
-                        const response = await fetch(initImageFileSrc);
-                        blob = await response.blob();
-                        fileName = path.basename(initImageFileSrc);
-                    }
-                    posterInitImageFileObject = new File([blob], fileName, { type: blob.type });
-
-                 } catch (error) {
-                    console.error("Error fetching or processing poster initial image file:", error);
-                    imageContainer.innerHTML = '<p>Error loading or processing poster initial image.</p>';
-                    return;
-                 }
-
-                 formData.append('init_image', posterInitImageFileObject); // Append the File object
-                 // Always include text_prompts in poster image-to-image mode, use the constructed prompt
-                 formData.append('text_prompts[0][text]', posterPrompt); 
-                 formData.append('image_strength', '0.7'); // Use image_strength in poster image-to-image mode
-                 // Add other parameters for poster mode as needed
-
-                 requestBody = formData;
-                 // Content-Type is automatically set to multipart/form-data for FormData
-
-             } else {
-                  // If no initial image is selected in poster mode, use text-to-image endpoint
-                  requestBody = JSON.stringify({
-                      text_prompts: [{ text: posterPrompt }],
-                      cfg_scale: 7,
-                      height: 512,
-                      width: 512,
-                      samples: 1,
-                      steps: 30,
-                  });
-             }
-
+            // Poster generation mode using the enhanced poster prompt generation
+            const posterPrompt = generatePosterPrompt();
+            
+            if (selectedReferenceImage && initImageFileObject) {
+                // If a reference image is selected in poster mode, use image-to-image endpoint
+                apiEndpoint = `${API_BASE_URL}/${ENGINE_ID}/image-to-image`;
+                const formData = new FormData();
+                formData.append('init_image', initImageFileObject);
+                formData.append('text_prompts[0][text]', posterPrompt); 
+                formData.append('image_strength', '0.7');
+                requestBody = formData;
+            } else {
+                // If no reference image is selected in poster mode, use text-to-image endpoint
+                apiEndpoint = `${API_BASE_URL}/${ENGINE_ID}/text-to-image`;
+                headers['Content-Type'] = 'application/json';
+                requestBody = JSON.stringify({
+                    text_prompts: [{ text: posterPrompt }],
+                    cfg_scale: 7,
+                    height: 512,
+                    width: 512,
+                    samples: 1,
+                    steps: 30,
+                });
+            }
         } else {
              // Should not happen with current logic, but as a fallback
              console.error("Unknown mode or sub-mode combination.");
-             imageContainer.innerHTML = "<p>Error: Invalid mode selection.</p>";
+             generatedPreview.innerHTML = "<p>Error: Invalid mode selection.</p>";
              return;
         }
 
+        // Determine the Content-Type header based on the requestBody type
+        if (requestBody instanceof FormData) {
+             // No Content-Type header needed for FormData, fetch sets it automatically
+             delete headers['Content-Type'];
+        } else {
+             headers['Content-Type'] = 'application/json';
+        }
 
         try {
-            // Determine the Content-Type header based on the requestBody type
-            if (requestBody instanceof FormData) {
-                 // No Content-Type header needed for FormData, fetch sets it automatically
-                 delete headers['Content-Type'];
-            } else {
-                 headers['Content-Type'] = 'application/json';
-            }
-
             const response = await fetch(apiEndpoint, {
                 method: "POST",
                 headers: headers,
@@ -492,21 +605,21 @@ document.addEventListener("DOMContentLoaded", () => {
 
             // The API should return artifacts as per the official documentation example
             if (responseJSON.artifacts && responseJSON.artifacts.length > 0) {
-                imageContainer.innerHTML = ''; // Clear loading text
+                generatedPreview.innerHTML = ''; // Clear loading text
                 responseJSON.artifacts.forEach((image, index) => {
                     const imgElement = document.createElement("img");
                     imgElement.src = `data:image/png;base64,${image.base64}`; // Assuming PNG base64 based on docs
                     imgElement.alt = `Generated image ${index + 1}`;
-                    imageContainer.appendChild(imgElement);
+                    generatedPreview.appendChild(imgElement);
                 });
             }
              else {
-                imageContainer.innerHTML = "<p>Error: Could not generate image or receive valid response.</p>";
+                generatedPreview.innerHTML = "<p>Error: Could not generate image or receive valid response.</p>";
             }
 
         } catch (error) {
             console.error("Error generating image:", error);
-            imageContainer.innerHTML = `<p>Error: ${error.message}</p>`;
+            generatedPreview.innerHTML = `<p>Error: ${error.message}</p>`;
         }
     });
 
@@ -518,4 +631,112 @@ document.addEventListener("DOMContentLoaded", () => {
             advancedOptionsDiv.style.display = 'none';
         }
     });
+
+    // Reference image controls event listeners (for poster mode)
+    refSelectSingleImageBtn.addEventListener('click', () => {
+        refSingleImageInput.click();
+    });
+
+    refSingleImageInput.addEventListener('change', (event) => {
+        const file = event.target.files[0];
+        if (file) {
+            referenceImageGrid.innerHTML = '';
+            selectedReferenceImage = null;
+
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                const imgElement = document.createElement('img');
+                imgElement.src = e.target.result;
+                imgElement.alt = file.name;
+                imgElement.classList.add('thumbnail', 'selected');
+
+                imgElement.addEventListener('click', () => {
+                    imgElement.classList.remove('selected');
+                    selectedReferenceImage = null;
+                    imgElement.remove();
+                    clearReferencePreview();
+                    console.log('Deselected reference image:', file.name);
+                });
+
+                referenceImageGrid.appendChild(imgElement);
+                selectedReferenceImage = imgElement;
+                showReferencePreview(e.target.result);
+                console.log('Selected reference image:', file.name);
+            };
+            reader.readAsDataURL(file);
+        }
+        event.target.value = '';
+    });
+
+    refSelectFolderBtn.addEventListener('click', () => {
+        if (currentMode === 'poster') {
+            ipcRenderer.send('open-reference-directory-dialog');
+        }
+    });
+
+    refSetDefaultFolderBtn.addEventListener('click', () => {
+        if (currentMode === 'poster') {
+            ipcRenderer.send('set-reference-default-directory');
+        }
+    });
+
+    // IPC listener for reference directory selection
+    ipcRenderer.on('selected-reference-directory', (event, directoryPath) => {
+        if (directoryPath) {
+            console.log('Selected reference directory:', directoryPath);
+            referenceImageGrid.innerHTML = '';
+            selectedReferenceImage = null;
+            clearReferencePreview();
+            displayReferenceImagesFromDirectory(directoryPath);
+        } else {
+            console.log('Reference directory selection canceled.');
+            referenceImageGrid.innerHTML = '<p>No directory selected.</p>';
+            selectedReferenceImage = null;
+        }
+    });
+
+    // Function to display reference images from directory
+    function displayReferenceImagesFromDirectory(directoryPath) {
+        referenceImageGrid.innerHTML = '';
+        selectedReferenceImage = null;
+        clearReferencePreview();
+
+        fs.readdir(directoryPath, (err, files) => {
+            if (err) {
+                console.error('Error reading reference directory:', err);
+                referenceImageGrid.innerHTML = '<p>Error reading directory.</p>';
+                return;
+            }
+
+            const imageFiles = files.filter(file => {
+                const ext = path.extname(file).toLowerCase();
+                return ['.png', '.jpg', '.jpeg', '.gif', '.bmp', '.webp'].includes(ext);
+            });
+
+            if (imageFiles.length === 0) {
+                referenceImageGrid.innerHTML = '<p>No image files found in this directory.</p>';
+                return;
+            }
+
+            imageFiles.forEach(file => {
+                const imgPath = path.join(directoryPath, file);
+                const imgElement = document.createElement('img');
+                imgElement.src = imgPath;
+                imgElement.alt = file;
+                imgElement.classList.add('thumbnail');
+
+                imgElement.addEventListener('click', () => {
+                    if (selectedReferenceImage) {
+                        selectedReferenceImage.classList.remove('selected');
+                    }
+                    imgElement.classList.add('selected');
+                    selectedReferenceImage = imgElement;
+                    showReferencePreview(imgElement.src);
+                    console.log('Selected reference image:', imgPath);
+                });
+
+                referenceImageGrid.appendChild(imgElement);
+            });
+        });
+    }
 }); 

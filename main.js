@@ -97,4 +97,36 @@ ipcMain.on('set-default-directory', async (event) => {
     // Optionally, send a cancellation signal back
     event.reply('default-directory-set', null);
   }
+});
+
+// IPC handler for selecting reference image directory (poster mode)
+ipcMain.on('open-reference-directory-dialog', async (event) => {
+  const { canceled, filePaths } = await dialog.showOpenDialog({
+    properties: ['openDirectory'],
+    title: 'Select Reference Images Folder'
+  });
+
+  if (!canceled && filePaths.length > 0) {
+    event.reply('selected-reference-directory', filePaths[0]);
+  } else {
+    event.reply('selected-reference-directory', null);
+  }
+});
+
+// IPC handler for setting reference image default directory
+ipcMain.on('set-reference-default-directory', async (event) => {
+  const { canceled, filePaths } = await dialog.showOpenDialog({
+    properties: ['openDirectory'],
+    title: 'Set Default Reference Images Folder'
+  });
+
+  if (!canceled && filePaths.length > 0) {
+    const selectedFolder = filePaths[0];
+    // You could save this separately or use the same config
+    console.log('Default reference folder set to:', selectedFolder);
+    event.reply('reference-default-directory-set', selectedFolder);
+  } else {
+    console.log('Setting default reference folder canceled.');
+    event.reply('reference-default-directory-set', null);
+  }
 }); 

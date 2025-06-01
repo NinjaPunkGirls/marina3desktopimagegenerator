@@ -6,8 +6,6 @@
     <link rel="stylesheet" href="./style.css">
 </head>
 <body>
-    <h1>Generate Image</h1>
-
     <div id="main-content-container">
         <div id="controls-area">
             <button id="mode-switch-btn">Switch to Poster Mode</button>
@@ -33,7 +31,7 @@
                 <div id="image-grid"></div> <!-- Container to display images -->
 
                 <div id="prompt-input-container">
-                     <textarea id="prompt" placeholder="Enter your image prompt here..."></textarea>
+                     <textarea id="prompt" placeholder="Enter your image prompt here... (optional in poster mode)"></textarea>
                 </div>
 
                 <h4><input type="checkbox" id="advanced-options-toggle" checked> Show Advanced Options</h4>
@@ -65,18 +63,129 @@
             </div>
 
             <div id="poster-mode-inputs" style="display: none;"> <!-- Initially hidden -->
-                <h3>Poster Details</h3>
-                <input type="text" id="poster-headline" placeholder="Enter poster headline...">
-                <textarea id="poster-body-text" placeholder="Enter body text (optional)..."></textarea>
-                <input type="text" id="poster-style" placeholder="Enter poster style (e.g., vintage, art deco)...">
-                <!-- Could add more specific options later, like color schemes, fonts etc. -->
+                <h3>Poster Creation</h3>
+                
+                <div class="poster-type-selection">
+                    <h4>Poster Type</h4>
+                    <div class="poster-type-grid">
+                        <label class="poster-type-option">
+                            <input type="radio" name="poster-type" value="event" checked>
+                            <span class="poster-type-label">Event Poster</span>
+                            <small>Concerts, festivals, parties</small>
+                        </label>
+                        <label class="poster-type-option">
+                            <input type="radio" name="poster-type" value="movie">
+                            <span class="poster-type-label">Movie Poster</span>
+                            <small>Film promotions, cinema</small>
+                        </label>
+                        <label class="poster-type-option">
+                            <input type="radio" name="poster-type" value="vintage">
+                            <span class="poster-type-label">Vintage/Retro</span>
+                            <small>Classic, aged, nostalgic</small>
+                        </label>
+                        <label class="poster-type-option">
+                            <input type="radio" name="poster-type" value="propaganda">
+                            <span class="poster-type-label">Propaganda</span>
+                            <small>Political, motivational</small>
+                        </label>
+                        <label class="poster-type-option">
+                            <input type="radio" name="poster-type" value="art-deco">
+                            <span class="poster-type-label">Art Deco</span>
+                            <small>Geometric, elegant, 1920s</small>
+                        </label>
+                        <label class="poster-type-option">
+                            <input type="radio" name="poster-type" value="minimalist">
+                            <span class="poster-type-label">Minimalist</span>
+                            <small>Clean, simple, modern</small>
+                        </label>
+                        <label class="poster-type-option">
+                            <input type="radio" name="poster-type" value="travel">
+                            <span class="poster-type-label">Travel</span>
+                            <small>Tourism, destinations</small>
+                        </label>
+                        <label class="poster-type-option">
+                            <input type="radio" name="poster-type" value="horror">
+                            <span class="poster-type-label">Horror</span>
+                            <small>Dark, scary, thriller</small>
+                        </label>
+                        <label class="poster-type-option">
+                            <input type="radio" name="poster-type" value="sci-fi">
+                            <span class="poster-type-label">Sci-Fi</span>
+                            <small>Futuristic, space, tech</small>
+                        </label>
+                        <label class="poster-type-option">
+                            <input type="radio" name="poster-type" value="custom">
+                            <span class="poster-type-label">Custom Style</span>
+                            <small>Define your own style</small>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="poster-content">
+                    <h4>Content</h4>
+                    <input type="text" id="poster-headline" placeholder="Enter poster headline...">
+                    <textarea id="poster-body-text" placeholder="Enter body text (optional)..."></textarea>
+                    <input type="text" id="poster-style" placeholder="Custom style description (only for Custom Style option)...">
+                </div>
+
+                <div class="poster-additional-options">
+                    <h4>Additional Options</h4>
+                    <div class="poster-option-row">
+                        <label for="poster-color-scheme">Color Scheme:</label>
+                        <select id="poster-color-scheme">
+                            <option value="auto">Auto (based on type)</option>
+                            <option value="vintage-sepia">Vintage Sepia</option>
+                            <option value="black-white">Black & White</option>
+                            <option value="neon-bright">Neon & Bright</option>
+                            <option value="dark-moody">Dark & Moody</option>
+                            <option value="warm-earth">Warm Earth Tones</option>
+                            <option value="cool-blue">Cool Blues</option>
+                            <option value="red-dominant">Red Dominant</option>
+                        </select>
+                    </div>
+                    <div class="poster-option-row">
+                        <label for="poster-era">Time Period:</label>
+                        <select id="poster-era">
+                            <option value="modern">Modern (2020s)</option>
+                            <option value="retro">Retro (1980s-90s)</option>
+                            <option value="vintage">Vintage (1950s-70s)</option>
+                            <option value="classic">Classic (1920s-40s)</option>
+                            <option value="victorian">Victorian Era</option>
+                            <option value="futuristic">Futuristic</option>
+                        </select>
+                    </div>
+                </div>
             </div>
 
             <button id="generate-btn">Generate</button>
         </div>
 
-        <div id="image-container">
-            <!-- Generated image will appear here -->
+        <div id="image-display-area">
+            <div id="reference-image-container">
+                <h4>Reference Image</h4>
+                
+                <!-- Reference image upload controls (shown in poster mode) -->
+                <div id="reference-image-controls" style="display: none;">
+                    <div class="reference-upload-buttons">
+                        <button id="ref-select-single-image-btn">Select Single Image</button>
+                        <input type="file" id="ref-single-image-input" accept="image/*" style="display: none;">
+                        <button id="ref-select-folder-btn">Select Image Folder</button>
+                        <button id="ref-set-default-folder-btn">Set as Default Folder</button>
+                    </div>
+                    
+                    <div id="reference-image-grid"></div>
+                </div>
+                
+                <div id="reference-preview">
+                    <!-- Selected reference image preview will appear here -->
+                </div>
+            </div>
+            <div id="generated-image-container">
+                <h4>Generated Image</h4>
+                <div id="generated-preview">
+                    <!-- Generated image will appear here -->
+                </div>
+            </div>
         </div>
     </div>
 

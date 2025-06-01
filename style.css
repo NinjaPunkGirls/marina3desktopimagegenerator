@@ -1,71 +1,531 @@
+html, body {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    height: 100%;
+    overflow-x: hidden;
+}
+
 body {
-    font-family: sans-serif;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     padding: 20px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #8e44ad 100%);
+    min-height: 100vh;
+    background-attachment: fixed;
+    background-size: cover;
+    background-repeat: no-repeat;
+    color: #ffffff;
+    box-sizing: border-box;
+}
+
+/* Ensure all child elements use border-box */
+*, *::before, *::after {
+    box-sizing: border-box;
+}
+
+h1 {
+    text-align: center;
+    margin-bottom: 30px;
+    font-size: 2.5rem;
+    font-weight: 300;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+    background: linear-gradient(45deg, #fff, #e8f4ff);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+h3, h4 {
+    color: #ffffff;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
 }
 
 #main-content-container {
-    display: flex; /* Use Flexbox to arrange children side-by-side */
-    gap: 20px; /* Add some space between the controls and the image */
+    display: flex;
+    gap: 20px;
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+    border-radius: 15px;
+    padding: 25px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    margin-bottom: 20px;
+    width: 100%;
+    max-width: 100%;
 }
 
 #controls-area {
-    flex: 1; /* Allow the controls area to grow and shrink */
-    max-width: 500px; /* Optional: Limit the maximum width of the controls area */
+    flex: 0 0 500px;
+    min-width: 400px;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 12px;
+    padding: 20px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    display: flex;
+    flex-direction: column;
+    height: fit-content;
+}
+
+/* Generate button specific styling */
+#generate-btn {
+    margin-top: 20px;
+    padding: 15px 30px;
+    font-size: 16px;
+    font-weight: 600;
+    background: linear-gradient(135deg, #9c88ff 0%, #8c7ae6 100%);
+    color: white;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 6px 20px rgba(156, 136, 255, 0.4);
+    width: 100%;
+}
+
+#generate-btn:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 25px rgba(156, 136, 255, 0.5);
+    background: linear-gradient(135deg, #a29bff 0%, #9c88ff 100%);
+}
+
+/* Button Styling */
+button {
+    background: linear-gradient(135deg, #9c88ff 0%, #8c7ae6 100%);
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 500;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(156, 136, 255, 0.3);
+}
+
+button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(156, 136, 255, 0.4);
+    background: linear-gradient(135deg, #a29bff 0%, #9c88ff 100%);
+}
+
+button:active {
+    transform: translateY(0);
+}
+
+/* Input Styling */
+input[type="text"], input[type="number"], textarea {
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 8px;
+    padding: 10px;
+    color: white;
+    font-size: 14px;
+    transition: all 0.3s ease;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+input[type="text"]:focus, input[type="number"]:focus, textarea:focus {
+    outline: none;
+    border-color: #9c88ff;
+    background: rgba(255, 255, 255, 0.15);
+    box-shadow: 0 0 10px rgba(156, 136, 255, 0.3);
+}
+
+input[type="text"]::placeholder, textarea::placeholder {
+    color: rgba(255, 255, 255, 0.6);
+}
+
+/* Radio Button Styling */
+input[type="radio"] {
+    accent-color: #9c88ff;
+}
+
+label {
+    color: #ffffff;
+    margin-right: 15px;
+    font-weight: 400;
 }
 
 #image-selection-buttons {
-    display: flex; /* Arrange buttons side-by-side */
-    gap: 10px; /* Add space between buttons */
-    margin-bottom: 10px; /* Add space below the buttons */
+    display: flex;
+    gap: 10px;
+    margin-bottom: 15px;
+    flex-wrap: wrap;
 }
 
 #prompt {
     width: 100%;
     height: 100px;
-    margin-bottom: 10px;
+    margin-bottom: 15px;
+    resize: vertical;
 }
 
-#image-container {
-    flex: 1; /* Allow the image container to grow and shrink */
-    display: flex; /* Use Flexbox for centering/styling the image */
-    justify-content: center; /* Center image horizontally */
-    align-items: flex-start; /* Align image to the top */
-    border: 1px solid #ccc; /* Add a border to the image container */
-    padding: 10px; /* Add some padding inside the container */
-    overflow: hidden; /* Hide any overflowing parts of the image */
+#image-display-area {
+    flex: 1;
+    display: flex;
+    gap: 20px;
+    padding: 10px;
+    min-width: 0;
 }
 
-#image-container img {
+#reference-image-container,
+#generated-image-container {
+    flex: 1;
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    padding: 20px;
+    border-radius: 12px;
+    backdrop-filter: blur(5px);
+    min-width: 0;
+}
+
+#reference-image-container h4,
+#generated-image-container h4 {
+    margin-top: 0;
+    margin-bottom: 15px;
+    text-align: center;
+    color: #ffffff;
+    font-weight: 600;
+    font-size: 1.1rem;
+}
+
+#reference-preview,
+#generated-preview {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 300px;
+    border: 2px dashed rgba(255, 255, 255, 0.3);
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.05);
+    transition: all 0.3s ease;
+}
+
+#reference-preview:hover,
+#generated-preview:hover {
+    border-color: rgba(156, 136, 255, 0.5);
+    background: rgba(255, 255, 255, 0.08);
+}
+
+#reference-preview img,
+#generated-preview img {
     max-width: 100%;
+    max-height: 100%;
     height: auto;
-    display: block; /* Remove extra space below the image */
+    display: block;
+    border-radius: 8px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+}
+
+#reference-preview:empty::before {
+    content: "No reference image selected";
+    color: rgba(255, 255, 255, 0.6);
+    font-style: italic;
+}
+
+#generated-preview:empty::before {
+    content: "Generated image will appear here";
+    color: rgba(255, 255, 255, 0.6);
+    font-style: italic;
 }
 
 #image-grid {
     display: flex;
     flex-wrap: wrap;
-    gap: 10px; /* Space between images */
+    gap: 10px;
     margin-bottom: 20px;
-    max-height: 200px; /* Limit height and add scrolling if needed */
+    max-height: 200px;
     overflow-y: auto;
-    border: 1px solid #ccc;
-    padding: 10px;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    padding: 15px;
+    border-radius: 8px;
 }
 
 .thumbnail {
-    width: 100px; /* Fixed width for thumbnails */
-    height: 100px; /* Fixed height for thumbnails */
-    object-fit: cover; /* Cover the area without distorting aspect ratio */
+    width: 100px;
+    height: 100px;
+    object-fit: cover;
     cursor: pointer;
-    border: 2px solid transparent; /* Default border */
-    transition: border-color 0.2s ease-in-out;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    border-radius: 6px;
+    transition: all 0.3s ease;
 }
 
 .thumbnail:hover {
-    border-color: #007bff; /* Highlight on hover */
+    border-color: #9c88ff;
+    transform: scale(1.05);
+    box-shadow: 0 4px 15px rgba(156, 136, 255, 0.4);
 }
 
 .thumbnail.selected {
-    border-color: #28a745; /* Green border for selected image */
-    box-shadow: 0 0 5px rgba(40, 167, 69, 0.5); /* Add a subtle shadow */
+    border-color: #00ff88;
+    box-shadow: 0 0 15px rgba(0, 255, 136, 0.6);
+    transform: scale(1.05);
+}
+
+/* Advanced Options Styling */
+#advanced-options {
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 8px;
+    padding: 15px;
+    margin-top: 10px;
+    margin-bottom: 15px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+#advanced-options > div {
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+#advanced-options label {
+    min-width: 120px;
+    font-size: 14px;
+}
+
+#advanced-options input {
+    flex: 1;
+    max-width: 100px;
+}
+
+/* Checkbox Styling */
+input[type="checkbox"] {
+    accent-color: #9c88ff;
+    transform: scale(1.2);
+}
+
+/* Scrollbar Styling */
+::-webkit-scrollbar {
+    width: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb {
+    background: linear-gradient(135deg, #9c88ff, #8c7ae6);
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: linear-gradient(135deg, #a29bff, #9c88ff);
+}
+
+/* Responsive adjustments */
+@media (max-width: 1200px) {
+    #main-content-container {
+        flex-direction: column;
+    }
+    
+    #controls-area {
+        flex: none;
+        max-width: none;
+        min-width: auto;
+    }
+    
+    #image-display-area {
+        flex-direction: column;
+    }
+}
+
+/* Poster Mode Styling */
+.poster-type-selection {
+    margin-bottom: 20px;
+}
+
+.poster-type-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 10px;
+    margin-top: 10px;
+}
+
+.poster-type-option {
+    display: flex;
+    flex-direction: column;
+    padding: 15px;
+    background: rgba(255, 255, 255, 0.08);
+    border: 2px solid rgba(255, 255, 255, 0.2);
+    border-radius: 10px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-align: center;
+}
+
+.poster-type-option:hover {
+    background: rgba(255, 255, 255, 0.12);
+    border-color: rgba(156, 136, 255, 0.5);
+    transform: translateY(-2px);
+}
+
+.poster-type-option input[type="radio"] {
+    margin-bottom: 8px;
+    transform: scale(1.3);
+}
+
+.poster-type-option input[type="radio"]:checked + .poster-type-label {
+    color: #9c88ff;
+    font-weight: 600;
+}
+
+.poster-type-option:has(input[type="radio"]:checked) {
+    background: rgba(156, 136, 255, 0.2);
+    border-color: #9c88ff;
+    box-shadow: 0 4px 15px rgba(156, 136, 255, 0.3);
+}
+
+.poster-type-label {
+    font-weight: 500;
+    margin-bottom: 5px;
+    color: #ffffff;
+    transition: color 0.3s ease;
+}
+
+.poster-type-option small {
+    color: rgba(255, 255, 255, 0.7);
+    font-size: 12px;
+    line-height: 1.3;
+}
+
+.poster-content, .poster-additional-options {
+    margin-bottom: 20px;
+    padding: 15px;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 10px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.poster-content h4, .poster-additional-options h4 {
+    margin-top: 0;
+    margin-bottom: 15px;
+    color: #ffffff;
+}
+
+.poster-option-row {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    margin-bottom: 15px;
+}
+
+.poster-option-row:last-child {
+    margin-bottom: 0;
+}
+
+.poster-option-row label {
+    min-width: 120px;
+    color: #ffffff;
+    font-weight: 500;
+}
+
+select {
+    flex: 1;
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 8px;
+    padding: 10px;
+    color: white;
+    font-size: 14px;
+    transition: all 0.3s ease;
+}
+
+select:focus {
+    outline: none;
+    border-color: #9c88ff;
+    background: rgba(255, 255, 255, 0.15);
+    box-shadow: 0 0 10px rgba(156, 136, 255, 0.3);
+}
+
+select option {
+    background: #2d2d2d;
+    color: white;
+    padding: 8px;
+}
+
+/* Poster mode specific input adjustments */
+#poster-mode-inputs input[type="text"],
+#poster-mode-inputs textarea {
+    margin-bottom: 10px;
+}
+
+#poster-style {
+    opacity: 0.6;
+    transition: opacity 0.3s ease;
+}
+
+#poster-style.enabled {
+    opacity: 1;
+}
+
+/* Reference Image Controls Styling */
+#reference-image-controls {
+    margin-bottom: 15px;
+    padding: 15px;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 8px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.reference-upload-buttons {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 15px;
+    flex-wrap: wrap;
+}
+
+.reference-upload-buttons button {
+    flex: 1;
+    min-width: 120px;
+    padding: 8px 12px;
+    font-size: 13px;
+}
+
+#reference-image-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    max-height: 150px;
+    overflow-y: auto;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    padding: 10px;
+    border-radius: 6px;
+}
+
+#reference-image-grid .thumbnail {
+    width: 60px;
+    height: 60px;
+    object-fit: cover;
+    cursor: pointer;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    border-radius: 4px;
+    transition: all 0.3s ease;
+}
+
+#reference-image-grid .thumbnail:hover {
+    border-color: #9c88ff;
+    transform: scale(1.05);
+    box-shadow: 0 4px 15px rgba(156, 136, 255, 0.4);
+}
+
+#reference-image-grid .thumbnail.selected {
+    border-color: #00ff88;
+    box-shadow: 0 0 15px rgba(0, 255, 136, 0.6);
+    transform: scale(1.05);
+}
+
+#reference-image-grid:empty::before {
+    content: "No reference images loaded";
+    color: rgba(255, 255, 255, 0.5);
+    font-style: italic;
+    font-size: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 40px;
 } 
